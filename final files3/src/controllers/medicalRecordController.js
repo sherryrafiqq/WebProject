@@ -10,19 +10,15 @@ function assertDoctorOrAdmin(role) {
 
 export async function addMedicalRecord(req, res) {
   try {
-    console.log("BODY RECEIVED:", req.body);
+    console.log("BODY RECEIVED:", req.body);  // <--- log it
 
     const { patient_id, doctor_id, diagnosis, prescriptions, notes } = req.body;
 
-    const newRecord = await medicalRecordModel.createMedicalRecord({
-      patient_id,
-      doctor_id,
-      diagnosis,
-      prescriptions,
-      notes
+    // temporarily just return the data instead of DB
+    return res.status(201).json({
+      message: "POST received",
+      data: { patient_id, doctor_id, diagnosis, prescriptions, notes }
     });
-
-    return res.status(201).json(newRecord);
   } catch (error) {
     console.error("ADD RECORD ERROR:", error);
     return res.status(500).json({ message: "Server error", error: error.message });
