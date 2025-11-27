@@ -1,13 +1,13 @@
 import express from "express";
-import { authenticate } from "../middleware/auth.js";
+// import { authenticate } from "../middleware/auth.js";  <- comment out
 import * as medicalRecordController from "../controllers/medicalRecordController.js";
 
 const router = express.Router();
 
-router.post("/", authenticate, medicalRecordController.addMedicalRecord);
-router.get("/:patientId", authenticate, medicalRecordController.getMedicalRecords);
-router.put("/:id", authenticate, medicalRecordController.updateMedicalRecord);
-router.delete("/:id", authenticate, medicalRecordController.deleteMedicalRecord);
+router.post("/", medicalRecordController.addMedicalRecord);
+router.get("/:patientId", medicalRecordController.getMedicalRecords);
+router.put("/:id", medicalRecordController.updateMedicalRecord);
+router.delete("/:id", medicalRecordController.deleteMedicalRecord);
 
 export default router;
 
