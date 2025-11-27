@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Records API Test</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+    }
+    body {
+      margin: 0;
+      background: #f8fafc;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    header {
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 0.2rem;
+    }
+    section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+    }
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.8rem;
+    }
+    label {
+      font-size: 0.85rem;
+      color: #475569;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
+      font-size: 0.95rem;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+      grid-column: 1 / -1;
+    }
+    button {
+      grid-column: 1 / -1;
+      border: none;
+      padding: 0.65rem;
+      border-radius: 8px;
+      background: linear-gradient(120deg, #3b82f6, #6366f1);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    pre {
+      background: #0f172a;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #e2e8f0;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    .token-display {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .token-display button {
+      flex: 0 0 auto;
+      grid-column: auto;
+      padding: 0.4rem 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Medical Records API Explorer</h1>
+    <p>Fill forms to call your backend endpoints. Open devtools to track requests.</p>
+  </header>
+
+  <section>
+    <h2>1. Auth</h2>
+    <div class="stack">
+      <form id="register-form">
+        <label>API Base URL
+          <input type="text" name="baseUrl" value="http://localhost:5000/api/users" required />
+        </label>
+        <label>Name
+          <input type="text" name="name" value="Test Patient" />
+        </label>
+        <label>Email
+          <input type="email" name="email" value="patient@example.com" />
+        </label>
+        <label>Password
+          <input type="password" name="password" value="Password123!" />
+        </label>
+        <label>Role
+          <select name="role">
+            <option value="patient">patient</option>
+            <option value="doctor">doctor</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <label>Specialty (doctor only)
+          <input type="text" name="specialty" placeholder="Dermatology" />
+        </label>
+        <button type="submit">POST /register</button>
+      </form>
+
+      <form id="login-form">
+        <label>API Base URL
+          <input type="text" name="baseUrl" value="http://localhost:5000/api/users" required />
+        </label>
+        <label>Email
+          <input type="email" name="email" value="doctor@example.com" />
+        </label>
+        <label>Password
+          <input type="password" name="password" value="Password123!" />
+        </label>
+        <label>Role
+          <select name="role">
+            <option value="doctor">doctor</option>
+            <option value="patient">patient</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <button type="submit">POST /login</button>
+      </form>
+      <div class="token-display">
+        <input id="token" type="text" placeholder="JWT token will appear here" />
+        <button type="button" onclick="copyToken()">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Medical Records</h2>
+    <div class="stack">
+      <form id="create-record-form">
+        <label>API URL
+          <input type="text" name="url" value="http://localhost:5002/api/medical-records" required />
+        </label>
+        <label>Patient ID
+          <input type="number" name="patient_id" value="1" required />
+        </label>
+        <label>Doctor ID (admin only)
+          <input type="number" name="doctor_id" />
+        </label>
+        <label>Diagnosis
+          <input type="text" name="diagnosis" value="Skin allergy" required />
+        </label>
+        <label>Prescriptions
+          <textarea name="prescriptions">Antihistamines once daily</textarea>
+        </label>
+        <label>Notes
+          <textarea name="notes">Avoid triggers and follow up in 2 weeks.</textarea>
+        </label>
+        <button type="submit">POST /medical-records</button>
+      </form>
+
+      <form id="get-records-form">
+        <label>API URL
+          <input type="text" name="url" value="http://localhost:5002/api/medical-records/1" required />
+        </label>
+        <button type="submit">GET /medical-records/:patientId</button>
+      </form>
+
+      <form id="update-record-form">
+        <label>API URL
+          <input type="text" name="url" value="http://localhost:5002/api/medical-records/1" required />
+        </label>
+        <label>Diagnosis
+          <input type="text" name="diagnosis" placeholder="Leave blank to keep same" />
+        </label>
+        <label>Prescriptions
+          <textarea name="prescriptions" placeholder="Optional"></textarea>
+        </label>
+        <label>Notes
+          <textarea name="notes" placeholder="Optional"></textarea>
+        </label>
+        <button type="submit">PUT /medical-records/:id</button>
+      </form>
+
+      <form id="delete-record-form">
+        <label>API URL
+          <input type="text" name="url" value="http://localhost:5002/api/medical-records/1" required />
+        </label>
+        <button type="submit">DELETE /medical-records/:id</button>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <h2>Response</h2>
+    <pre id="response-box">// Responses will show here</pre>
+  </section>
+
+  <script>
+    const responseBox = document.getElementById("response-box");
+    const tokenInput = document.getElementById("token");
+
+    function showResponse(label, data) {
+      responseBox.textContent = `${label}\n${JSON.stringify(data, null, 2)}`;
+    }
+
+    async function authFetch(url, options = {}) {
+      const token = tokenInput.value.trim();
+      const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      const res = await fetch(url, { ...options, headers });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw { status: res.status, payload };
+      return payload;
+    }
+
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget).entries());
+      try {
+        const result = await fetch(`${data.baseUrl}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            role: data.role,
+            specialty: data.specialty || undefined,
+          }),
+        }).then((r) => r.json());
+        showResponse("REGISTER", result);
+      } catch (err) {
+        showResponse("REGISTER ERROR", err);
+      }
+    });
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.currentTarget).entries());
+      try {
+        const result = await fetch(`${data.baseUrl}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            role: data.role,
+          }),
+        }).then((r) => r.json());
+        if (result.token) tokenInput.value = result.token;
+        showResponse("LOGIN", result);
+      } catch (err) {
+        showResponse("LOGIN ERROR", err);
+      }
+    });
+
+    function handleJSONForm(formId, method, formatter) {
+      document.getElementById(formId).addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.currentTarget).entries());
+        try {
+          const body = formatter ? formatter(data) : data;
+          const payload = await authFetch(data.url, {
+            method,
+            body: body ? JSON.stringify(body) : undefined,
+          });
+          showResponse(`${method} ${data.url}`, payload);
+        } catch (err) {
+          showResponse(`ERROR ${method} ${data.url}`, err);
+        }
+      });
+    }
+
+    handleJSONForm("create-record-form", "POST", (data) => ({
+      patient_id: Number(data.patient_id),
+      doctor_id: data.doctor_id ? Number(data.doctor_id) : undefined,
+      diagnosis: data.diagnosis,
+      prescriptions: data.prescriptions || undefined,
+      notes: data.notes || undefined,
+    }));
+
+    handleJSONForm("get-records-form", "GET", () => null);
+
+    handleJSONForm("update-record-form", "PUT", (data) => {
+      const payload = {};
+      if (data.diagnosis) payload.diagnosis = data.diagnosis;
+      if (data.prescriptions) payload.prescriptions = data.prescriptions;
+      if (data.notes) payload.notes = data.notes;
+      return payload;
+    });
+
+    handleJSONForm("delete-record-form", "DELETE", () => null);
+
+    function copyToken() {
+      navigator.clipboard.writeText(tokenInput.value);
+    }
+  </script>
+</body>
+</html>
+
