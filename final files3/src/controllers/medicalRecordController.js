@@ -1,4 +1,5 @@
 import * as medicalRecordModel from "../models/medicalRecordModel.js";
+import db from "../config/db.js"; // make sure path is correct
 
 function assertDoctorOrAdmin(role) {
   if (role !== "doctor" && role !== "admin") {
@@ -10,14 +11,18 @@ function assertDoctorOrAdmin(role) {
 
 export async function addMedicalRecord(req, res) {
   try {
-    console.log("BODY RECEIVED:", req.body);  // <--- log it
-
     const { patient_id, doctor_id, diagnosis, prescriptions, notes } = req.body;
 
-    // temporarily just return the data instead of DB
+    // Use the pool to execute the query
+    const [result] = await db.execute(
+      `INSERT INTO MedicalRecords (patient_id, doctor_id, diagnosis, prescriptions, notes)
+       VALUES (?, ?, ?, ?, ?)`,
+      [patient_id, doctor_id, diagnosis, prescriptions, notes]
+    );
+
     return res.status(201).json({
-      message: "POST received",
-      data: { patient_id, doctor_id, diagnosis, prescriptions, notes }
+      message: "Record added",
+      recordId: result.insertId
     });
   } catch (error) {
     console.error("ADD RECORD ERROR:", error);
