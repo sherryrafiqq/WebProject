@@ -27,10 +27,10 @@ export async function addMedicalRecord(req, res) {
     // Log the full error object
     console.error("FULL ERROR:", error);
 
-    // Return a more complete error to the client
+    // Return the full error message for debugging
     return res.status(500).json({
-      message: "Server error",
-      error: error.toString()
+        message: "Server error",
+        error: error.message || error // use .message if available, otherwise print whole object
     });
   }
 }
