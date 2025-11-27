@@ -13,7 +13,6 @@ export async function addMedicalRecord(req, res) {
   try {
     const { patient_id, doctor_id, diagnosis, prescriptions, notes } = req.body;
 
-    // Use the pool to execute the query
     const [result] = await db.execute(
       `INSERT INTO MedicalRecords (patient_id, doctor_id, diagnosis, prescriptions, notes)
        VALUES (?, ?, ?, ?, ?)`,
@@ -25,8 +24,14 @@ export async function addMedicalRecord(req, res) {
       recordId: result.insertId
     });
   } catch (error) {
-    console.error("ADD RECORD ERROR:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    // Log the full error object
+    console.error("FULL ERROR:", error);
+
+    // Return a more complete error to the client
+    return res.status(500).json({
+      message: "Server error",
+      error: error.toString()
+    });
   }
 }
 
