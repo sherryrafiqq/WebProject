@@ -10,32 +10,22 @@ function assertDoctorOrAdmin(role) {
 
 export async function addMedicalRecord(req, res) {
   try {
-    // Bypassing auth - allow all operations
+    console.log("BODY RECEIVED:", req.body);
+
     const { patient_id, doctor_id, diagnosis, prescriptions, notes } = req.body;
-    if (!patient_id || !diagnosis) {
-      return res
-        .status(400)
-        .json({ message: "patient_id and diagnosis are required" });
-    }
 
-    if (!doctor_id) {
-      return res.status(400).json({ message: "doctor_id is required" });
-    }
-
-    const result = await medicalRecordModel.createMedicalRecord({
+    const newRecord = await medicalRecordModel.createMedicalRecord({
       patient_id,
       doctor_id,
       diagnosis,
-      prescriptions: prescriptions || null,
-      notes: notes || null,
+      prescriptions,
+      notes
     });
 
-    res
-      .status(201)
-      .json({ message: "Medical record created successfully", recordId: result.insertId });
-  } catch (err) {
-    const status = err.statusCode || 500;
-    res.status(status).json({ message: err.message || "Server error" });
+    return res.status(201).json(newRecord);
+  } catch (error) {
+    console.error("ADD RECORD ERROR:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 }
 
